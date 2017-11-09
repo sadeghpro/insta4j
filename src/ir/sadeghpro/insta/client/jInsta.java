@@ -27,30 +27,30 @@ public class jInsta {
     private final static String POST_ADDRESS = URL + "graphql/query/?query_id=17888483320059182&variables=";
     private final static String COMMENT_ADDRESS = URL + "graphql/query/?query_id=17852405266163336";
 
-    public Account getAccount(String username) {
+    public User getAccount(String username) {
         String link = URL + username + "/?__a=1";
-        Account acc = new Account();
+        User user = new User();
         try {
             Response r = Jsoup.connect(link).ignoreContentType(true).execute();
             JSONObject object = new JSONObject(r.body());
-            JSONObject user = object.getJSONObject("user");
-            String image = user.getString("profile_pic_url_hd");
-            String instaId = user.getString("id");
-            int posts = user.getJSONObject("media").getInt("count");
-            int follower = user.getJSONObject("followed_by").getInt("count");
-            int following = user.getJSONObject("follows").getInt("count");
-            String bio = user.getString("biography");
-            acc.setJson(object);
-            acc.setImage(image);
-            acc.setBio(bio);
-            acc.setFollower(follower);
-            acc.setFollowing(following);
-            acc.setInstaId(instaId);
-            acc.setPosts(posts);
+            JSONObject userObj = object.getJSONObject("user");
+            String image = userObj.getString("profile_pic_url_hd");
+            String instaId = userObj.getString("id");
+            int posts = userObj.getJSONObject("media").getInt("count");
+            int follower = userObj.getJSONObject("followed_by").getInt("count");
+            int following = userObj.getJSONObject("follows").getInt("count");
+            String bio = userObj.getString("biography");
+            user.setJson(object);
+            user.setImage(image);
+            user.setBio(bio);
+            user.setFollower(follower);
+            user.setFollowing(following);
+            user.setInstaId(instaId);
+            user.setPosts(posts);
         } catch (IOException | JSONException ex) {
             Logger.getLogger(jInsta.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return acc;
+        return user;
     }
     
     public void getPost(String instaId){
