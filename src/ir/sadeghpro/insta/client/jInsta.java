@@ -90,7 +90,7 @@ public class jInsta {
                 post.setId(postObj.getString("id"));
                 post.setIsVideo(postObj.getBoolean("is_video"));
                 post.setLike(postObj.getJSONObject("edge_media_preview_like").getInt("count"));
-                post.setOwner(postObj.getJSONObject("owner").getString("id"));
+                post.setOwnerId(postObj.getJSONObject("owner").getString("id"));
                 post.setShortcode(postObj.getString("shortcode"));
                 post.setTimestamp(postObj.getInt("taken_at_timestamp"));
                 post.setTypename(postObj.getString("__typename"));
@@ -106,8 +106,48 @@ public class jInsta {
         return postRespons;
     }
 
-    public void getComment(String shortcode, int first, String after) {
+    public CommentResponse getComment(String shortcode) {
+        return getComment(shortcode, 12, "");
+    }
+
+    public CommentResponse getComment(String shortcode, String after) {
+        return getComment(shortcode, 12, after);
+    }
+
+    public CommentResponse getComment(String shortcode, int first) {
+        return getComment(shortcode, first, "");
+    }
+    
+    public CommentResponse getComment(String shortcode, int first, String after) {
         String link = COMMENT_ADDRESS + "&shortcode=" + shortcode + "&first=" + first + (after.length() > 0 ? "&after=" + after : "");
+        System.out.println(link);
+        CommentResponse commentResponse = new CommentResponse();
+        try {
+            Response r = Jsoup.connect(link).ignoreContentType(true).execute();
+            JSONObject object = new JSONObject(r.body());
+            JSONObject data = object.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_media_to_comment");
+            commentResponse.setCount(data.getInt("count"));
+            commentResponse.setHasNextPage(data.getJSONObject("page_info").getBoolean("has_next_page"));
+            if(commentResponse.hasNextPage()){
+                commentResponse.setEndCursor(data.getJSONObject("page_info").getString("end_cursor"));
+            }
+            JSONArray comments = data.getJSONArray("edges");
+            for (int i = 0; i < comments.length(); i++) {
+                JSONObject commentObj = comments.getJSONObject(i).getJSONObject("node");
+                Comment comment = new Comment();
+                comment.setId(commentObj.getString("id"));
+                comment.setText(commentObj.getString("text"));
+                comment.setTimestamp(commentObj.getInt("created_at"));
+                comment.setOwnerId(commentObj.getJSONObject("owner").getString("id"));
+                comment.setOwnerProfilePicUrl(commentObj.getJSONObject("owner").getString("profile_pic_url"));
+                comment.setOwnerUsername(commentObj.getJSONObject("owner").getString("username"));
+                commentResponse.addComments(comment);
+            }
+            commentResponse.setJson(data);
+        } catch (JSONException | IOException ex) {
+            Logger.getLogger(jInsta.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return commentResponse;
     }
 
 }

@@ -22,7 +22,7 @@ public class Post {
     Dimension dimensions = new Dimension();
     String displayUrl;
     int like;
-    String owner;
+    String ownerId;
     boolean isVideo;
     int videoViewCount = 0;
 
@@ -148,15 +148,15 @@ public class Post {
     }
 
     /**
-     * get owner id of pst
-     * @return String owner id
+     * get owner id of post
+     * @return String ownerId id
      */
-    public String getOwner() {
-        return owner;
+    public String getOwnerId() {
+        return ownerId;
     }
 
-    protected void setOwner(String owner) {
-        this.owner = owner;
+    protected void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
     }
 
     /**

@@ -12,14 +12,16 @@ import org.json.JSONObject;
  *
  * @author peter
  */
-public class PostResponse {
+public class CommentResponse {
     private JSONObject json;
+    private int count;
     private boolean hasNextPage;
     private String endCursor;
-    private ArrayList<Post> posts = new ArrayList<>();
+    private ArrayList<Comment> comments = new ArrayList<>();
 
+    
     /**
-     * get full json object of get posts response
+     * get full json object of get comments response
      * @return JSONObject
      */
     public JSONObject getJson() {
@@ -31,7 +33,19 @@ public class PostResponse {
     }
 
     /**
-     * is exist any other post
+     * get count of comment on a post
+     * @return int
+     */
+    public int getCount() {
+        return count;
+    }
+
+    protected void setCount(int count) {
+        this.count = count;
+    }
+
+    /**
+     * is exist any other comment
      * @return boolean
      */
     public boolean hasNextPage() {
@@ -43,7 +57,7 @@ public class PostResponse {
     }
 
     /**
-     * string code for getting next posts with getPost method
+     * string code for getting next comments with getComment method
      * @return String
      */
     public String getEndCursor() {
@@ -55,15 +69,15 @@ public class PostResponse {
     }
 
     /**
-     * an array of post object
+     * an array of comment object
      * @return ArrayList
      */
-    public ArrayList<Post> getPosts() {
-        return posts;
+    public ArrayList<Comment> getComments() {
+        return comments;
     }
 
-    protected void addPost(Post post) {
-        posts.add(post);
+    protected void addComments(Comment comment) {
+        comments.add(comment);
     }
     
     
