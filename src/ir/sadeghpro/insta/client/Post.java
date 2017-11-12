@@ -19,7 +19,7 @@ public class Post {
     int comment;
     boolean commentsDisabled;
     int timestamp;
-    Dimension dimensions;
+    Dimension dimensions = new Dimension();
     String displayUrl;
     int like;
     String owner;
