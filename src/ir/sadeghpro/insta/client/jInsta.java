@@ -31,12 +31,27 @@ public class jInsta {
     private final static String COMMENT_ADDRESS = URL + "graphql/query/?query_id=17852405266163336";
     private final static String FOLLOWER_ADDRESS = URL + "graphql/query/?query_id=17851374694183129&variables=";
     private Map<String, String> cookie;
+    private String ip = "";
+    private int port = 0;
+    
+    public jInsta(){
+        
+    }
+    
+    public jInsta(String ip, int port){
+        this.ip = ip;
+        this.port = port;
+    }
 
     public User getUser(String username) {
         String link = URL + username + "/?__a=1";
         User user = new User();
         try {
-            Response r = Jsoup.connect(link).ignoreContentType(true).execute();
+            Connection c = Jsoup.connect(link).ignoreContentType(true);
+            if(ip.length()>0 && port!=0){
+                c.proxy(ip, port);
+            }
+            Response r = c.execute();
             JSONObject object = new JSONObject(r.body());
             JSONObject userObj = object.getJSONObject("user");
             String image = userObj.getString("profile_pic_url_hd");
@@ -74,7 +89,11 @@ public class jInsta {
         String link = POST_ADDRESS + "{\"id\":\"" + instaId + "\",\"first\":" + first + (after.length() > 0 ? ",\"after\":\"" + after + "\"" : "") + "}";
         PostResponse postRespons = new PostResponse();
         try {
-            Response r = Jsoup.connect(link).ignoreContentType(true).execute();
+            Connection c = Jsoup.connect(link).ignoreContentType(true);
+            if(ip.length()>0 && port!=0){
+                c.proxy(ip, port);
+            }
+            Response r = c.execute();
             JSONObject object = new JSONObject(r.body());
             JSONObject data = object.getJSONObject("data").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
             boolean isNextPage = data.getJSONObject("page_info").getBoolean("has_next_page");
@@ -127,7 +146,11 @@ public class jInsta {
         String link = COMMENT_ADDRESS + "&shortcode=" + shortcode + "&first=" + first + (after.length() > 0 ? "&after=" + after : "");
         CommentResponse commentResponse = new CommentResponse();
         try {
-            Response r = Jsoup.connect(link).ignoreContentType(true).execute();
+            Connection c = Jsoup.connect(link).ignoreContentType(true);
+            if(ip.length()>0 && port!=0){
+                c.proxy(ip, port);
+            }
+            Response r = c.execute();
             JSONObject object = new JSONObject(r.body());
             JSONObject data = object.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_media_to_comment");
             commentResponse.setCount(data.getInt("count"));
@@ -163,7 +186,11 @@ public class jInsta {
             headers.put("Connection", "keep-alive");
             headers.put("cache-control", "max-age=0");
             headers.put("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/50.0.2661.102 Chrome/50.0.2661.102 Safari/537.36");
-            Response loginPage = Jsoup.connect(LOGIN_ADDRESS).headers(headers).ignoreContentType(true).execute();
+            Connection c = Jsoup.connect(LOGIN_ADDRESS).headers(headers).ignoreContentType(true);
+            if(ip.length()>0 && port!=0){
+                c.proxy(ip, port);
+            }
+            Response loginPage = c.execute();
             cookie = loginPage.cookies();
             Document d = loginPage.parse();
             Elements inputs = d.getElementsByAttributeValue("type", "hidden");
@@ -179,8 +206,12 @@ public class jInsta {
             headers.put("Host", "www.instagram.com");
             headers.put("content-type", "application/x-www-form-urlencoded");
             headers.put("cache-control", "max-age=0");
-            Response login = Jsoup.connect(LOGIN_ADDRESS).cookies(cookie).ignoreContentType(true).data(post)
-                    .referrer(LOGIN_ADDRESS).headers(headers).method(Connection.Method.POST).execute();
+            c = Jsoup.connect(LOGIN_ADDRESS).cookies(cookie).ignoreContentType(true).data(post)
+                    .referrer(LOGIN_ADDRESS).headers(headers).method(Connection.Method.POST);
+            if(ip.length()>0 && port!=0){
+                c.proxy(ip, port);
+            }
+            Response login = c.execute();
             cookie.putAll(login.cookies());
             return login.statusCode() == 200;
         } catch (IOException ex) {
@@ -207,7 +238,11 @@ public class jInsta {
         }
         try {
             String link = FOLLOWER_ADDRESS + "{\"id\":\"" + instaId + "\",\"first\":" + first + (after.length() > 0 ? ",\"after\":\"" + after + "\"" : "") + "}";
-            Response r = Jsoup.connect(link).cookies(cookie).ignoreContentType(true).execute();
+            Connection c = Jsoup.connect(link).cookies(cookie).ignoreContentType(true);
+            if(ip.length()>0 && port!=0){
+                c.proxy(ip, port);
+            }
+            Response r = c.execute();
             JSONObject object = new JSONObject(r.body());
             System.out.println(r.body());
         } catch (IOException | JSONException ex) {
