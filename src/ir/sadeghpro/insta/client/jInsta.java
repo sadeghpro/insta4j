@@ -5,17 +5,19 @@
  */
 package ir.sadeghpro.insta.client;
 
-//import crawel.db_connect;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -24,8 +26,11 @@ import org.jsoup.Jsoup;
 public class jInsta {
 
     private final static String URL = "https://www.instagram.com/";
+    private final static String LOGIN_ADDRESS = URL + "accounts/login/?force_classic_login";
     private final static String POST_ADDRESS = URL + "graphql/query/?query_id=17888483320059182&variables=";
     private final static String COMMENT_ADDRESS = URL + "graphql/query/?query_id=17852405266163336";
+    private final static String FOLLOWER_ADDRESS = URL + "graphql/query/?query_id=17851374694183129&variables=";
+    private Map<String, String> cookie;
 
     public User getUser(String username) {
         String link = URL + username + "/?__a=1";
@@ -39,7 +44,7 @@ public class jInsta {
             int posts = userObj.getJSONObject("media").getInt("count");
             int follower = userObj.getJSONObject("followed_by").getInt("count");
             int following = userObj.getJSONObject("follows").getInt("count");
-            String bio = userObj.getString("biography");
+            String bio = userObj.isNull("biography") ? "" : userObj.getString("biography");
             user.setJson(object);
             user.setImage(image);
             user.setBio(bio);
@@ -74,7 +79,7 @@ public class jInsta {
             JSONObject data = object.getJSONObject("data").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
             boolean isNextPage = data.getJSONObject("page_info").getBoolean("has_next_page");
             postRespons.setHasNextPage(isNextPage);
-            if(isNextPage){
+            if (isNextPage) {
                 postRespons.setEndCursor(data.getJSONObject("page_info").getString("end_cursor"));
             }
             JSONArray posts = data.getJSONArray("edges");
@@ -94,7 +99,7 @@ public class jInsta {
                 post.setShortcode(postObj.getString("shortcode"));
                 post.setTimestamp(postObj.getInt("taken_at_timestamp"));
                 post.setTypename(postObj.getString("__typename"));
-                if(post.isVideo){
+                if (post.isVideo) {
                     post.setVideoViewCount(postObj.getInt("video_view_count"));
                 }
                 postRespons.addPost(post);
@@ -117,10 +122,9 @@ public class jInsta {
     public CommentResponse getComment(String shortcode, int first) {
         return getComment(shortcode, first, "");
     }
-    
+
     public CommentResponse getComment(String shortcode, int first, String after) {
         String link = COMMENT_ADDRESS + "&shortcode=" + shortcode + "&first=" + first + (after.length() > 0 ? "&after=" + after : "");
-        System.out.println(link);
         CommentResponse commentResponse = new CommentResponse();
         try {
             Response r = Jsoup.connect(link).ignoreContentType(true).execute();
@@ -128,7 +132,7 @@ public class jInsta {
             JSONObject data = object.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_media_to_comment");
             commentResponse.setCount(data.getInt("count"));
             commentResponse.setHasNextPage(data.getJSONObject("page_info").getBoolean("has_next_page"));
-            if(commentResponse.hasNextPage()){
+            if (commentResponse.hasNextPage()) {
                 commentResponse.setEndCursor(data.getJSONObject("page_info").getString("end_cursor"));
             }
             JSONArray comments = data.getJSONArray("edges");
@@ -148,6 +152,67 @@ public class jInsta {
             Logger.getLogger(jInsta.class.getName()).log(Level.SEVERE, null, ex);
         }
         return commentResponse;
+    }
+
+    public boolean login(String username, String password) {
+        try {
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+            headers.put("Accept-Language", "en-US,en;q=0.5");
+            headers.put("Accept-Encoding", "deflate, br");
+            headers.put("Connection", "keep-alive");
+            headers.put("cache-control", "max-age=0");
+            headers.put("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/50.0.2661.102 Chrome/50.0.2661.102 Safari/537.36");
+            Response loginPage = Jsoup.connect(LOGIN_ADDRESS).headers(headers).ignoreContentType(true).execute();
+            cookie = loginPage.cookies();
+            Document d = loginPage.parse();
+            Elements inputs = d.getElementsByAttributeValue("type", "hidden");
+            Map<String, String> post = new HashMap<>();
+            post.put("username", username);
+            post.put("password", password);
+            inputs.forEach((input) -> {
+                post.put(input.attr("name"), input.attr("value"));
+            });
+            headers.put("origin", "https://www.instagram.com");
+            headers.put("authority", "www.instagram.com");
+            headers.put("upgrade-insecure-requests", "1");
+            headers.put("Host", "www.instagram.com");
+            headers.put("content-type", "application/x-www-form-urlencoded");
+            headers.put("cache-control", "max-age=0");
+            Response login = Jsoup.connect(LOGIN_ADDRESS).cookies(cookie).ignoreContentType(true).data(post)
+                    .referrer(LOGIN_ADDRESS).headers(headers).method(Connection.Method.POST).execute();
+            cookie.putAll(login.cookies());
+            return login.statusCode() == 200;
+        } catch (IOException ex) {
+            Logger.getLogger(jInsta.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+
+    public void getFollowers(String instaId) throws Exception {
+        getFollowers(instaId, 12, "");
+    }
+
+    public void getFollowers(String instaId, String after) throws Exception {
+        getFollowers(instaId, 12, after);
+    }
+
+    public void getFollowers(String instaId, int first) throws Exception {
+        getFollowers(instaId, first, "");
+    }
+
+    public void getFollowers(String instaId, int first, String after) throws Exception {
+        if (cookie == null) {
+            throw new Exception("you don't login yet. for this method you need to login first");
+        }
+        try {
+            String link = FOLLOWER_ADDRESS + "{\"id\":\"" + instaId + "\",\"first\":" + first + (after.length() > 0 ? ",\"after\":\"" + after + "\"" : "") + "}";
+            Response r = Jsoup.connect(link).cookies(cookie).ignoreContentType(true).execute();
+            JSONObject object = new JSONObject(r.body());
+            System.out.println(r.body());
+        } catch (IOException | JSONException ex) {
+            Logger.getLogger(jInsta.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }
