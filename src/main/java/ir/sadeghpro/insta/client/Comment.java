@@ -28,7 +28,7 @@ public class Comment {
         return id;
     }
 
-    protected void setId(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -41,7 +41,7 @@ public class Comment {
         return text;
     }
 
-    protected void setText(String text) {
+    public void setText(String text) {
         this.text = text;
     }
 
@@ -54,7 +54,7 @@ public class Comment {
         return timestamp;
     }
 
-    protected void setTimestamp(int timestamp) {
+    public void setTimestamp(int timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -67,7 +67,7 @@ public class Comment {
         return ownerId;
     }
 
-    protected void setOwnerId(String ownerId) {
+    public void setOwnerId(String ownerId) {
         this.ownerId = ownerId;
     }
 
@@ -80,7 +80,7 @@ public class Comment {
         return ownerProfilePicUrl;
     }
 
-    protected void setOwnerProfilePicUrl(String ownerProfilePicUrl) {
+    public void setOwnerProfilePicUrl(String ownerProfilePicUrl) {
         this.ownerProfilePicUrl = ownerProfilePicUrl;
     }
 
@@ -93,7 +93,7 @@ public class Comment {
         return ownerUsername;
     }
 
-    protected void setOwnerUsername(String ownerUsername) {
+    public void setOwnerUsername(String ownerUsername) {
         this.ownerUsername = ownerUsername;
     }
 
@@ -106,7 +106,7 @@ public class Comment {
         return postShortCode;
     }
 
-    protected void setPostShortCode(String postShortCode) {
+    public void setPostShortCode(String postShortCode) {
         this.postShortCode = postShortCode;
     }
 

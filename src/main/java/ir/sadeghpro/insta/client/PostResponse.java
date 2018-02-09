@@ -26,7 +26,7 @@ public class PostResponse {
         return json;
     }
 
-    protected void setJson(Ason json) {
+    public void setJson(Ason json) {
         this.json = json;
     }
 
@@ -38,7 +38,7 @@ public class PostResponse {
         return hasNextPage;
     }
 
-    protected void setHasNextPage(boolean hasNextPage) {
+    public void setHasNextPage(boolean hasNextPage) {
         this.hasNextPage = hasNextPage;
     }
 
@@ -50,7 +50,7 @@ public class PostResponse {
         return endCursor;
     }
 
-    protected void setEndCursor(String endCursor) {
+    public void setEndCursor(String endCursor) {
         this.endCursor = endCursor;
     }
 
@@ -62,7 +62,7 @@ public class PostResponse {
         return posts;
     }
 
-    protected void addPost(Post post) {
+    public void addPost(Post post) {
         posts.add(post);
     }
     

@@ -38,7 +38,7 @@ public class Post {
         return id;
     }
 
-    protected void setId(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -50,7 +50,7 @@ public class Post {
         return typename;
     }
 
-    protected void setTypename(String typename) {
+    public void setTypename(String typename) {
         this.typename = typename;
     }
 
@@ -62,7 +62,7 @@ public class Post {
         return caption;
     }
 
-    protected void setCaption(String caption) {
+    public void setCaption(String caption) {
         this.caption = caption;
     }
 
@@ -74,7 +74,7 @@ public class Post {
         return shortcode;
     }
 
-    protected void setShortcode(String shortcode) {
+    public void setShortcode(String shortcode) {
         this.shortcode = shortcode;
     }
 
@@ -86,7 +86,7 @@ public class Post {
         return comment;
     }
 
-    protected void setComment(int comment) {
+    public void setComment(int comment) {
         this.comment = comment;
     }
 
@@ -98,7 +98,7 @@ public class Post {
         return commentsDisabled;
     }
 
-    protected void setCommentsDisabled(boolean commentsDisabled) {
+    public void setCommentsDisabled(boolean commentsDisabled) {
         this.commentsDisabled = commentsDisabled;
     }
 
@@ -110,7 +110,7 @@ public class Post {
         return timestamp;
     }
 
-    protected void setTimestamp(int timestamp) {
+    public void setTimestamp(int timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -122,7 +122,7 @@ public class Post {
         return dimensions;
     }
 
-    protected void setDimensions(int width, int height) {
+    public void setDimensions(int width, int height) {
         dimensions.setSize(width, height);
     }
 
@@ -134,7 +134,7 @@ public class Post {
         return displayUrl;
     }
 
-    protected void setDisplayUrl(String displayUrl) {
+    public void setDisplayUrl(String displayUrl) {
         this.displayUrl = displayUrl;
     }
 
@@ -146,7 +146,7 @@ public class Post {
         return like;
     }
 
-    protected void setLike(int like) {
+    public void setLike(int like) {
         this.like = like;
     }
 
@@ -158,7 +158,7 @@ public class Post {
         return ownerId;
     }
 
-    protected void setOwnerId(String ownerId) {
+    public void setOwnerId(String ownerId) {
         this.ownerId = ownerId;
     }
 
@@ -170,7 +170,7 @@ public class Post {
         return isVideo;
     }
 
-    protected void setIsVideo(boolean isVideo) {
+    public void setIsVideo(boolean isVideo) {
         this.isVideo = isVideo;
     }
 
@@ -182,7 +182,7 @@ public class Post {
         return videoViewCount;
     }
 
-    protected void setVideoViewCount(int videoViewCount) {
+    public void setVideoViewCount(int videoViewCount) {
         this.videoViewCount = videoViewCount;
     }
 
@@ -195,7 +195,7 @@ public class Post {
         return locationId;
     }
 
-    protected void setLocationId(String locationId) {
+    public void setLocationId(String locationId) {
         this.locationId = locationId;
     }
     

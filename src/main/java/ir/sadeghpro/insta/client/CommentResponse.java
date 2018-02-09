@@ -28,7 +28,7 @@ public class CommentResponse {
         return json;
     }
 
-    protected void setJson(Ason json) {
+    public void setJson(Ason json) {
         this.json = json;
     }
 
@@ -40,7 +40,7 @@ public class CommentResponse {
         return count;
     }
 
-    protected void setCount(int count) {
+    public void setCount(int count) {
         this.count = count;
     }
 
@@ -52,7 +52,7 @@ public class CommentResponse {
         return hasNextPage;
     }
 
-    protected void setHasNextPage(boolean hasNextPage) {
+    public void setHasNextPage(boolean hasNextPage) {
         this.hasNextPage = hasNextPage;
     }
 
@@ -64,7 +64,7 @@ public class CommentResponse {
         return endCursor;
     }
 
-    protected void setEndCursor(String endCursor) {
+    public void setEndCursor(String endCursor) {
         this.endCursor = endCursor;
     }
 
@@ -76,7 +76,7 @@ public class CommentResponse {
         return comments;
     }
 
-    protected void addComments(Comment comment) {
+    public void addComments(Comment comment) {
         comments.add(comment);
     }
     

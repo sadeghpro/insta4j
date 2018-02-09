@@ -22,7 +22,7 @@ public class Location {
         return id;
     }
 
-    protected void setId(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -30,7 +30,7 @@ public class Location {
         return name;
     }
 
-    protected void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -38,7 +38,7 @@ public class Location {
         return hasPublicPage;
     }
 
-    protected void setHasPublicPage(boolean hasPublicPage) {
+    public void setHasPublicPage(boolean hasPublicPage) {
         this.hasPublicPage = hasPublicPage;
     }
 
@@ -46,7 +46,7 @@ public class Location {
         return lat;
     }
 
-    protected void setLat(double lat) {
+    public void setLat(double lat) {
         this.lat = lat;
     }
 
@@ -54,7 +54,7 @@ public class Location {
         return lng;
     }
 
-    protected void setLng(double lng) {
+    public void setLng(double lng) {
         this.lng = lng;
     }
 
@@ -62,7 +62,7 @@ public class Location {
         return slug;
     }
 
-    protected void setSlug(String slug) {
+    public void setSlug(String slug) {
         this.slug = slug;
     }
 
