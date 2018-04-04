@@ -5,7 +5,6 @@
  */
 package ir.sadeghpro.insta.client;
 
-import java.awt.Dimension;
 
 /**
  *
