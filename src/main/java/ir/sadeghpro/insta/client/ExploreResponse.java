@@ -1,34 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ir.sadeghpro.insta.client;
 
 import java.util.ArrayList;
-import org.json.JSONObject;
 
-/**
- *
- * @author peter
- */
-public class PostResponse {
-    private JSONObject json;
+public class ExploreResponse {
+
     private boolean hasNextPage;
     private String endCursor;
     private ArrayList<Post> posts = new ArrayList<>();
-
-    /**
-     * get full json object of get posts response
-     * @return JSONObject
-     */
-    public JSONObject getJson() {
-        return json;
-    }
-
-    protected void setJson(JSONObject json) {
-        this.json = json;
-    }
 
     /**
      * is exist any other post
@@ -38,7 +16,7 @@ public class PostResponse {
         return hasNextPage;
     }
 
-    protected void setHasNextPage(boolean hasNextPage) {
+    public void setHasNextPage(boolean hasNextPage) {
         this.hasNextPage = hasNextPage;
     }
 
@@ -50,7 +28,7 @@ public class PostResponse {
         return endCursor;
     }
 
-    protected void setEndCursor(String endCursor) {
+    public void setEndCursor(String endCursor) {
         this.endCursor = endCursor;
     }
 
@@ -62,9 +40,7 @@ public class PostResponse {
         return posts;
     }
 
-    protected void addPost(Post post) {
+    public void addPost(Post post) {
         posts.add(post);
     }
-    
-    
 }

@@ -5,30 +5,30 @@
  */
 package ir.sadeghpro.insta.client;
 
+import com.afollestad.ason.Ason;
 import java.util.ArrayList;
-import org.json.JSONObject;
 
 /**
  *
  * @author peter
  */
-public class CommentResponse {
-    private JSONObject json;
+public class FollowResponse {
+    private transient Ason json;
     private int count;
     private boolean hasNextPage;
     private String endCursor;
-    private ArrayList<Comment> comments = new ArrayList<>();
+    private ArrayList<User> users = new ArrayList<>();
 
     
     /**
-     * get full json object of get comments response
+     * get full json object of get users response
      * @return JSONObject
      */
-    public JSONObject getJson() {
+    public Ason getJson() {
         return json;
     }
 
-    protected void setJson(JSONObject json) {
+    public void setJson(Ason json) {
         this.json = json;
     }
 
@@ -40,44 +40,44 @@ public class CommentResponse {
         return count;
     }
 
-    protected void setCount(int count) {
+    public void setCount(int count) {
         this.count = count;
     }
 
     /**
-     * is exist any other comment
+     * is exist any other followers
      * @return boolean
      */
     public boolean hasNextPage() {
         return hasNextPage;
     }
 
-    protected void setHasNextPage(boolean hasNextPage) {
+    public void setHasNextPage(boolean hasNextPage) {
         this.hasNextPage = hasNextPage;
     }
 
     /**
-     * string code for getting next comments with getComment method
+     * string code for getting next users with getFollowers method
      * @return String
      */
     public String getEndCursor() {
         return endCursor;
     }
 
-    protected void setEndCursor(String endCursor) {
+    public void setEndCursor(String endCursor) {
         this.endCursor = endCursor;
     }
 
     /**
-     * an array of comment object
+     * an array of user object
      * @return ArrayList
      */
-    public ArrayList<Comment> getComments() {
-        return comments;
+    public ArrayList<User> getUsers() {
+        return users;
     }
 
-    protected void addComments(Comment comment) {
-        comments.add(comment);
+    public void addUsers(User user) {
+        users.add(user);
     }
     
     

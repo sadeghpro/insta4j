@@ -6,13 +6,16 @@
 package ir.sadeghpro.insta.client;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author peter
  */
 public class Post {
     private String id;
-    private String typename;
+    private TypeName typename;
     private String caption;
     private String shortcode;
     private int comment;
@@ -24,11 +27,26 @@ public class Post {
     private String ownerId;
     private boolean isVideo;
     private int videoViewCount = 0;
-    private String locationId = "0";
+    private Location location;
     private String videoUrl;
     private Post[] sidecars;
+    private List<Comment> comments = new ArrayList<>();
 
-    
+    public enum TypeName{
+        Sidecar("GraphSidecar"),
+        Video("GraphVideo"),
+        Image("GraphImage");
+        TypeName(String name){
+            this.name=name;
+        }
+        private String name;
+
+        public String toString(){
+            return this.name;
+        }
+    }
+
+
     /**
      * get String id of post on instagram to use in other method
      * @return String id
@@ -45,12 +63,27 @@ public class Post {
      * get type name of post like "GraphVideo" and "GraphImage"
      * @return String type
      */
-    public String getTypename() {
+    public TypeName getTypename() {
         return typename;
     }
 
-    public void setTypename(String typename) {
+    public void setTypename(TypeName typename) {
         this.typename = typename;
+    }
+
+    public void setTypename(String typename){
+        switch (typename){
+            case "GraphImage":
+                setTypename(Post.TypeName.Image);
+                break;
+            case "GraphVideo":
+                setTypename(Post.TypeName.Video);
+                break;
+            case "GraphSidecar":
+                setTypename(Post.TypeName.Sidecar);
+                break;
+
+        }
     }
 
     /**
@@ -190,12 +223,12 @@ public class Post {
      * if location id is 0 then means not set and if location id is -1 then there is no location id founded for his post at all.
      * @return String
      */
-    public String getLocationId() {
-        return locationId;
+    public Location getLocation() {
+        return location;
     }
 
-    public void setLocationId(String locationId) {
-        this.locationId = locationId;
+    public void setLocation(Location location) {
+        this.location = location;
     }
     
     /**
@@ -221,5 +254,16 @@ public class Post {
     public void setSidecars(Post[] sidecars) {
         this.sidecars = sidecars;
     }
-   
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void addComments(List<Comment> comments) {
+        this.comments.addAll(comments);
+    }
+
+    public void addComments(Comment comment) {
+        this.comments.add(comment);
+    }
 }

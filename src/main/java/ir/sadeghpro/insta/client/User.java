@@ -23,9 +23,16 @@ public class User {
     private String username;
     private String fullname;
     private String externalUrl;
+    private boolean isPrivate;
+    private boolean isVerified;
+    private boolean followedByViewer;
+    private boolean requestedByViewer;
+    private boolean followsViewer;
+    private boolean requestedViewer;
 
     /**
      * get full json object of user
+     *
      * @return JSONObject
      */
     public Ason getJson() {
@@ -38,6 +45,7 @@ public class User {
 
     /**
      * get hd image link of user profile
+     *
      * @return String Link of instagram
      */
     public String getImage() {
@@ -50,6 +58,7 @@ public class User {
 
     /**
      * get id of user in instagram
+     *
      * @return String user id
      */
     public String getInstaId() {
@@ -62,6 +71,7 @@ public class User {
 
     /**
      * get post count of user
+     *
      * @return int post count
      */
     public int getPosts() {
@@ -74,6 +84,7 @@ public class User {
 
     /**
      * get follower count of user
+     *
      * @return int follower count
      */
     public int getFollower() {
@@ -86,6 +97,7 @@ public class User {
 
     /**
      * get following count of user
+     *
      * @return int following count
      */
     public int getFollowing() {
@@ -98,6 +110,7 @@ public class User {
 
     /**
      * get user biography
+     *
      * @return String bio
      */
     public String getBio() {
@@ -108,6 +121,11 @@ public class User {
         this.bio = bio;
     }
 
+    /**
+     * get username of account
+     *
+     * @return String username
+     */
     public String getUsername() {
         return username;
     }
@@ -116,6 +134,11 @@ public class User {
         this.username = username;
     }
 
+    /**
+     * get user full name
+     *
+     * @return String name
+     */
     public String getFullname() {
         return fullname;
     }
@@ -124,6 +147,11 @@ public class User {
         this.fullname = fullname;
     }
 
+    /**
+     * get user external url
+     *
+     * @return String url
+     */
     public String getExternalUrl() {
         return externalUrl;
     }
@@ -131,5 +159,67 @@ public class User {
     public void setExternalUrl(String externalUrl) {
         this.externalUrl = externalUrl;
     }
-    
+
+    /**
+     * is user private
+     *
+     * @return boolean is private
+     */
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setIsPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setIsVerified(boolean isVerified) {
+        this.isVerified = isVerified;
+    }
+
+    /**
+     * is user followed by this account if you login
+     *
+     * @return boolean is followed
+     */
+    public boolean isFollowedByViewer() {
+        return followedByViewer;
+    }
+
+    public void setFollowedByViewer(boolean followedByViewer) {
+        this.followedByViewer = followedByViewer;
+    }
+
+    /**
+     * is you request for following or not if you login
+     *
+     * @return boolean is followed
+     */
+    public boolean isRequestedByViewer() {
+        return requestedByViewer;
+    }
+
+    public void setRequestedByViewer(boolean requestedByViewer) {
+        this.requestedByViewer = requestedByViewer;
+    }
+
+    public boolean isFollowsViewer() {
+        return followsViewer;
+    }
+
+    public void setFollowsViewer(boolean followsViewer) {
+        this.followsViewer = followsViewer;
+    }
+
+    public boolean isRequestedViewer() {
+        return requestedViewer;
+    }
+
+    public void setRequestedViewer(boolean requestedViewer) {
+        this.requestedViewer = requestedViewer;
+    }
 }
