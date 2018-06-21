@@ -15,6 +15,7 @@ public class S {
     public final static String USER_BY_ID_ADDRESS = "https://i.instagram.com/api/v1/users/";
     public final static String EXPLORE_ADDRESS = URL + "graphql/query/?query_hash=df0dcc250c2b18d9fd27c5581ef33c7c&variables=";
     public final static String POST_LIKERS_ADDRESS = URL + "graphql/query/?query_hash=1cb6ec562846122743b61e492c85999f&variables=";
+    public final static String HASHTAG_ADDRESS = URL + "graphql/query/?query_hash=ded47faa9a1aaded10161a2ff32abb6b&variables=";
     public final static String[] userAgents = {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_0) AppleWebKit/600.3.10 (KHTML, like Gecko) Version/8.0.3 Safari/600.3.10",
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11) AppleWebKit/601.1.39 (KHTML, like Gecko) Version/9.0 Safari/601.1.39",

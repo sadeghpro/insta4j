@@ -35,7 +35,8 @@ public class Post {
     public enum TypeName{
         Sidecar("GraphSidecar"),
         Video("GraphVideo"),
-        Image("GraphImage");
+        Image("GraphImage"),
+        Unknown("Unknown");
         TypeName(String name){
             this.name=name;
         }
@@ -82,7 +83,8 @@ public class Post {
             case "GraphSidecar":
                 setTypename(Post.TypeName.Sidecar);
                 break;
-
+            case "Unknown":
+                setTypename(Post.TypeName.Sidecar);
         }
     }
 

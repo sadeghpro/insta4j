@@ -743,6 +743,49 @@ public class Insta {
         return lr;
     }
 
+    public HashTagResponse getHashTag(String hashTag) throws IOException {
+        return getHashTag(hashTag,"");
+    }
+
+    public HashTagResponse getHashTag(String hashTag, String after) throws IOException {
+        String variable = "{\"tag_name\":\"" + hashTag + "\",\"first\":" + (new Random().nextInt(6) + 6) + (after.length() > 0 ? ",\"after\":\"" + after + "\"" : "") + "}";
+        String link = S.HASHTAG_ADDRESS + variable;
+        HashTagResponse hashTagResponse = new HashTagResponse();
+        String gis = md5(rhx_gis + ":" + variable);
+        Connection c = Jsoup.connect(link).userAgent(userAgent).ignoreContentType(true).header("X-Instagram-GIS", gis).header("X-Requested-With", "XMLHttpRequest");
+        if (ip.length() > 0 && port != 0) {
+            c.proxy(ip, port);
+        }
+        if (!cookie.isEmpty()) {
+            c.cookies(cookie);
+        }
+        c.cookie("csrftoken", csrf);
+        Response r = c.execute();
+        System.out.println(r.body());
+        Ason data = new Ason(r.body()).getJsonObject("data.hashtag");
+        hashTagResponse.setCount(data.getInt("edge_hashtag_to_media.count"));
+        hashTagResponse.setHasNextPage(data.getBool("edge_hashtag_to_media.page_info.has_next_page"));
+        hashTagResponse.setJson(data);
+        hashTagResponse.setTopMediaOnly(data.getBool("is_top_media_only"));
+        hashTagResponse.setProfilePicUrl(data.getString("profile_pic_url"));
+        if (hashTagResponse.hasNextPage()) {
+            hashTagResponse.setEndCursor(data.getString("edge_hashtag_to_media.page_info.end_cursor"));
+        }
+        AsonArray<Ason> posts = data.getJsonArray("edge_hashtag_to_media.edges");
+        for (int i = 0; i < posts.size(); i++) {
+            System.out.println("------------");
+            Ason postObj = posts.get(i).getJsonObject("node");
+            hashTagResponse.addRecentPost(returnTimeLinePost(postObj));
+        }
+        posts = data.getJsonArray("edge_hashtag_to_top_posts.edges");
+        for (int i = 0; i < posts.size(); i++) {
+            System.out.println("||||||||");
+            Ason postObj = posts.get(i).getJsonObject("node");
+            hashTagResponse.addTopPost(returnTimeLinePost(postObj));
+        }
+        return hashTagResponse;
+    }
+
     public Map<String, String> getCookie() {
         return cookie;
     }
@@ -803,7 +846,7 @@ public class Insta {
         post.setOwnerId(postObj.getString("owner.id"));
         post.setShortcode(postObj.getString("shortcode"));
         post.setTimestamp(postObj.getInt("taken_at_timestamp"));
-        post.setTypename(postObj.getString("__typename"));
+        post.setTypename(postObj.getString("__typename","Unknown"));
         if (post.isVideo()) {
             post.setVideoViewCount(postObj.getInt("video_view_count"));
         }
