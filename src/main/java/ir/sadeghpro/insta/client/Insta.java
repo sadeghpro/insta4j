@@ -32,6 +32,7 @@ public class Insta {
     private String ip = "";
     private int port = 0;
     private User user;
+    private String rollOutHash = "";
 
     public Insta() throws IOException {
         userAgent = S.userAgents[new Random().nextInt(S.userAgents.length)];
@@ -294,6 +295,7 @@ public class Insta {
         if (m.find()) {
             Ason object = new Ason(m.group(0).substring(14, m.group(0).lastIndexOf(";")));
             csrf = object.get("config.csrf_token");
+            rollOutHash = object.getString("rollout_hash");
         } else {
             System.out.println("NO MATCH");
         }
@@ -305,7 +307,7 @@ public class Insta {
         headers.put("Host", "www.instagram.com");
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         headers.put("X-CSRFToken", csrf);
-        headers.put("X-Instagram-AJAX", "1");
+        headers.put("X-Instagram-AJAX", rollOutHash);
         headers.put("X-Requested-With", "XMLHttpRequest");
         headers.put("Accept", "*/*");
         headers.put("Accept-Encoding", "gzip, deflate, br");
@@ -318,7 +320,7 @@ public class Insta {
             c.proxy(ip, port);
         }
         Response login = c.ignoreHttpErrors(true).execute();
-        System.out.println(login.statusCode());
+        System.out.println(login.body());
         for (Map.Entry<String, String> entry : login.cookies().entrySet()) {
             if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
                 cookie.remove(entry.getKey());
@@ -782,6 +784,10 @@ public class Insta {
 
     public User getUser() {
         return user;
+    }
+
+    public String getRollOutHash() {
+        return rollOutHash;
     }
 
     private Post returnTimeLinePost(Ason postObj) {
