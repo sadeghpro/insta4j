@@ -33,6 +33,7 @@ public class Insta {
     private int port = 0;
     private User user;
     private String rollOutHash = "";
+    private String checkpointUrl = "";
 
     public Insta() throws IOException {
         userAgent = S.userAgents[new Random().nextInt(S.userAgents.length)];
@@ -77,10 +78,10 @@ public class Insta {
             c.cookies(cookie);
         }
         Response r = c.execute();
-        if(r.statusCode()==200){
+        if (r.statusCode() == 200) {
             if (!cookie.isEmpty()) {
                 for (Map.Entry<String, String> entry : r.cookies().entrySet()) {
-                    if (entry.getValue().isEmpty() ||  entry.getValue().equals("\"\"")) {
+                    if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
                         cookie.remove(entry.getKey());
                     } else {
                         cookie.put(entry.getKey(), entry.getValue());
@@ -90,7 +91,7 @@ public class Insta {
             Pattern p = Pattern.compile("_sharedData[\\s\\S]*?;</script>");
             Matcher m = p.matcher(r.body());
             if (m.find()) {
-                try{
+                try {
                     Ason object = new Ason(m.group(0).substring(14, m.group(0).lastIndexOf(";")));
                     Ason userObj = object.getJsonObject("entry_data.ProfilePage.$0.graphql.user");
                     user.setJson(object);
@@ -110,14 +111,14 @@ public class Insta {
                     user.setFollowsViewer(userObj.getBool("follows_viewer"));
                     user.setRequestedViewer(userObj.getBool("has_requested_viewer"));
                     return user;
-                } catch (NullPointerException ex){
+                } catch (NullPointerException ex) {
                     return null;
                 }
             } else {
                 System.out.println("NO MATCH");
                 return null;
             }
-        } else{
+        } else {
             return null;
         }
 
@@ -152,7 +153,7 @@ public class Insta {
         post.setLike(postObj.getInt("edge_media_preview_like.count"));
         post.setOwnerId(postObj.getString("owner.id"));
         post.setTimestamp(postObj.getInt("taken_at_timestamp"));
-        if(postObj.has("location")){
+        if (postObj.has("location")) {
             Location location = new Location();
             location.setId(postObj.getString("location.id"));
             location.setHasPublicPage(postObj.getBool("location.has_public_page"));
@@ -193,7 +194,7 @@ public class Insta {
     public PostResponse getUserPosts(String instaId, int first, String after) throws IOException {
         String variable = "{\"id\":\"" + instaId + "\",\"first\":" + first + (after.length() > 0 ? ",\"after\":\"" + after + "\"" : "") + "}";
         String link = S.POST_ADDRESS + variable;
-        PostResponse postRespons = new PostResponse();
+        PostResponse postResponse = new PostResponse();
         String gis = md5(rhx_gis + ":" + variable);
         Connection c = Jsoup.connect(link).userAgent(userAgent).ignoreContentType(true).header("X-Instagram-GIS", gis).header("X-Requested-With", "XMLHttpRequest");
         if (ip.length() > 0 && port != 0) {
@@ -206,17 +207,17 @@ public class Insta {
         Response r = c.execute();
         Ason data = new Ason(r.body()).getJsonObject("data.user.edge_owner_to_timeline_media");
         boolean isNextPage = data.getBool("page_info.has_next_page");
-        postRespons.setHasNextPage(isNextPage);
+        postResponse.setHasNextPage(isNextPage);
         if (isNextPage) {
-            postRespons.setEndCursor(data.getString("page_info.end_cursor"));
+            postResponse.setEndCursor(data.getString("page_info.end_cursor"));
         }
         AsonArray<Ason> posts = data.getJsonArray("edges");
         for (int i = 0; i < posts.size(); i++) {
             Ason postObj = posts.get(i).getJsonObject("node");
-            postRespons.addPost(returnTimeLinePost(postObj));
+            postResponse.addPost(returnTimeLinePost(postObj));
         }
-        postRespons.setJson(data);
-        return postRespons;
+        postResponse.setJson(data);
+        return postResponse;
     }
 
     public CommentResponse getComment(String shortcode) throws IOException {
@@ -303,7 +304,6 @@ public class Insta {
         post.put("username", username);
         post.put("password", password);
         post.put("queryParams", "{}");
-        headers.put("origin", "https://www.instagram.com");
         headers.put("Host", "www.instagram.com");
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         headers.put("X-CSRFToken", csrf);
@@ -332,7 +332,7 @@ public class Insta {
         if (json.getBool("authenticated", false)) {
             Response redirect = Jsoup.connect(S.URL).userAgent(userAgent).cookies(cookie).referrer(S.URL + username + "/").execute();
             for (Map.Entry<String, String> entry : redirect.cookies().entrySet()) {
-                if (entry.getValue().isEmpty() ||  entry.getValue().equals("\"\"")) {
+                if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
                     cookie.remove(entry.getKey());
                 } else {
                     cookie.put(entry.getKey(), entry.getValue());
@@ -347,9 +347,116 @@ public class Insta {
             } else {
                 System.out.println("NO MATCH");
             }
+        } else if (json.getString("status").equals("fail")) {
+            if (json.has("checkpoint_url")) {
+                checkpointUrl = json.getString("checkpoint_url").replace("/challenge/", "");
+            }
         }
         return json;
 //        return null;
+    }
+
+    public Ason getChallenge() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+
+        headers.put("origin", "https://www.instagram.com");
+        headers.put("Host", "www.instagram.com");
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
+        headers.put("X-CSRFToken", csrf);
+        headers.put("X-Instagram-AJAX", rollOutHash);
+        headers.put("X-Requested-With", "XMLHttpRequest");
+        headers.put("Accept", "*/*");
+        headers.put("Accept-Encoding", "gzip, deflate, br");
+        headers.put("Accept-Language", "en-US,en;q=0.9");
+        headers.put("Pragma", "no-cache");
+        Connection c = Jsoup.connect(S.URL + "challenge/reset/" + checkpointUrl).headers(headers).method(Connection.Method.POST)
+                .cookies(cookie).userAgent(userAgent).ignoreContentType(true);
+        if (ip.length() > 0 && port != 0) {
+            c.proxy(ip, port);
+        }
+        Response r = c.execute();
+        for (Map.Entry<String, String> entry : r.cookies().entrySet()) {
+            if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
+                cookie.remove(entry.getKey());
+            } else {
+                cookie.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return new Ason(r.body());
+    }
+
+    public Ason sendSecurityCode(String choice) throws IOException {
+        Map<String, String> headers = new HashMap<>();
+
+        headers.put("origin", "https://www.instagram.com");
+        headers.put("Host", "www.instagram.com");
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
+        headers.put("X-CSRFToken", csrf);
+        headers.put("X-Instagram-AJAX", rollOutHash);
+        headers.put("X-Requested-With", "XMLHttpRequest");
+        headers.put("Accept", "*/*");
+        headers.put("Accept-Encoding", "gzip, deflate, br");
+        headers.put("Accept-Language", "en-US,en;q=0.9");
+        headers.put("Pragma", "no-cache");
+        Connection c = Jsoup.connect(S.URL + "challenge/" + checkpointUrl).referrer(S.URL + "challenge/" + checkpointUrl).method(Connection.Method.POST).headers(headers)
+                .data("choice", choice).cookies(cookie).userAgent(userAgent).ignoreContentType(true);
+        if (ip.length() > 0 && port != 0) {
+            c.proxy(ip, port);
+        }
+        Response r = c.ignoreHttpErrors(true).execute();
+        System.out.println(r.body());
+        for (Map.Entry<String, String> entry : r.cookies().entrySet()) {
+            if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
+                cookie.remove(entry.getKey());
+            } else {
+                cookie.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return new Ason(r.body());
+    }
+
+    public Ason submitSecurityCode(String code) throws IOException {
+        Map<String, String> headers = new HashMap<>();
+
+        headers.put("origin", "https://www.instagram.com");
+        headers.put("Host", "www.instagram.com");
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
+        headers.put("X-CSRFToken", csrf);
+        headers.put("X-Instagram-AJAX", rollOutHash);
+        headers.put("X-Requested-With", "XMLHttpRequest");
+        headers.put("Accept", "*/*");
+        headers.put("Accept-Encoding", "gzip, deflate, br");
+        headers.put("Accept-Language", "en-US,en;q=0.9");
+        headers.put("Pragma", "no-cache");
+        Connection c = Jsoup.connect(S.URL + "challenge/" + checkpointUrl).headers(headers).referrer(S.URL + "challenge/" + checkpointUrl).method(Connection.Method.POST)
+                .data("security_code", code).cookies(cookie).userAgent(userAgent).ignoreContentType(true);
+        if (ip.length() > 0 && port != 0) {
+            c.proxy(ip, port);
+        }
+        Response r = c.ignoreHttpErrors(true).execute();
+        System.out.println(r.body());
+        Ason json = new Ason(r.body());
+        for (Map.Entry<String, String> entry : r.cookies().entrySet()) {
+            if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
+                cookie.remove(entry.getKey());
+            } else {
+                cookie.put(entry.getKey(), entry.getValue());
+            }
+        }
+        if(json.has("location")){
+            r = Jsoup.connect(json.getString("location")).cookies(cookie).execute();
+            for (Map.Entry<String, String> entry : r.cookies().entrySet()) {
+                if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
+                    cookie.remove(entry.getKey());
+                } else {
+                    cookie.put(entry.getKey(), entry.getValue());
+                }
+            }
+            login = true;
+        } else if(json.getString("status","").equals("fail")) {
+            login = false;
+        }
+        return json;
     }
 
     public boolean isLogin() {
@@ -457,20 +564,20 @@ public class Insta {
         }
         String link = S.FRIENDSHIP_ADDRESS + user.getInstaId() + "/" + type + "/";
 //        csrf = cookie.get("csrftoken");
-        Map<String, String> headrs = new HashMap<>();
-        headrs.put("X-CSRFToken", csrf);
-        headrs.put("X-Instagram-AJAX", "1");
-        headrs.put("X-Requested-With", "XMLHttpRequest");
-        headrs.put("Host", "www.instagram.com");
-        headrs.put("content-type", "application/x-www-form-urlencoded");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("X-CSRFToken", csrf);
+        headers.put("X-Instagram-AJAX", "1");
+        headers.put("X-Requested-With", "XMLHttpRequest");
+        headers.put("Host", "www.instagram.com");
+        headers.put("content-type", "application/x-www-form-urlencoded");
         Connection c = Jsoup.connect(link).cookies(cookie).referrer("https://www.instagram.com/" + user.getUsername() + "/").ignoreContentType(true).method(Connection.Method.POST)
-                .ignoreHttpErrors(true).userAgent(userAgent).headers(headrs);
+                .ignoreHttpErrors(true).userAgent(userAgent).headers(headers);
         if (ip.length() > 0 && port != 0) {
             c.proxy(ip, port);
         }
         Response r = c.execute();
         for (Map.Entry<String, String> entry : r.cookies().entrySet()) {
-            if (entry.getValue().isEmpty() ||  entry.getValue().equals("\"\"")) {
+            if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
                 cookie.remove(entry.getKey());
             } else {
                 cookie.put(entry.getKey(), entry.getValue());
@@ -517,7 +624,7 @@ public class Insta {
         }
         Response r = c.execute();
         for (Map.Entry<String, String> entry : r.cookies().entrySet()) {
-            if (entry.getValue().isEmpty() ||  entry.getValue().equals("\"\"")) {
+            if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
                 cookie.remove(entry.getKey());
             } else {
                 cookie.put(entry.getKey(), entry.getValue());
@@ -551,7 +658,7 @@ public class Insta {
         }
         Response r = c.execute();
         for (Map.Entry<String, String> entry : r.cookies().entrySet()) {
-            if (entry.getValue().isEmpty() ||  entry.getValue().equals("\"\"")) {
+            if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
                 cookie.remove(entry.getKey());
             } else {
                 cookie.put(entry.getKey(), entry.getValue());
@@ -579,20 +686,20 @@ public class Insta {
         }
         String link = S.ADD_COMMENT_ADDRESS + post.getId() + "/delete/" + comment.getId() + "/";
 //        csrf = cookie.get("csrftoken");
-        Map<String, String> headrs = new HashMap<>();
-        headrs.put("X-CSRFToken", csrf);
-        headrs.put("X-Instagram-AJAX", "1");
-        headrs.put("X-Requested-With", "XMLHttpRequest");
-        headrs.put("Host", "www.instagram.com");
-        headrs.put("content-type", "application/x-www-form-urlencoded");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("X-CSRFToken", csrf);
+        headers.put("X-Instagram-AJAX", "1");
+        headers.put("X-Requested-With", "XMLHttpRequest");
+        headers.put("Host", "www.instagram.com");
+        headers.put("content-type", "application/x-www-form-urlencoded");
         Connection c = Jsoup.connect(link).cookies(cookie).referrer("https://www.instagram.com/p/" + post.getShortcode() + "/").ignoreContentType(true).method(Connection.Method.POST)
-                .ignoreHttpErrors(true).userAgent(userAgent).headers(headrs);
+                .ignoreHttpErrors(true).userAgent(userAgent).headers(headers);
         if (ip.length() > 0 && port != 0) {
             c.proxy(ip, port);
         }
         Response r = c.execute();
         for (Map.Entry<String, String> entry : r.cookies().entrySet()) {
-            if (entry.getValue().isEmpty() ||  entry.getValue().equals("\"\"")) {
+            if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
                 cookie.remove(entry.getKey());
             } else {
                 cookie.put(entry.getKey(), entry.getValue());
@@ -744,7 +851,7 @@ public class Insta {
     }
 
     public HashTagResponse getHashTag(String hashTag) throws IOException {
-        return getHashTag(hashTag,"");
+        return getHashTag(hashTag, "");
     }
 
     public HashTagResponse getHashTag(String hashTag, String after) throws IOException {
@@ -761,7 +868,6 @@ public class Insta {
         }
         c.cookie("csrftoken", csrf);
         Response r = c.execute();
-        System.out.println(r.body());
         Ason data = new Ason(r.body()).getJsonObject("data.hashtag");
         hashTagResponse.setCount(data.getInt("edge_hashtag_to_media.count"));
         hashTagResponse.setHasNextPage(data.getBool("edge_hashtag_to_media.page_info.has_next_page"));
@@ -773,13 +879,11 @@ public class Insta {
         }
         AsonArray<Ason> posts = data.getJsonArray("edge_hashtag_to_media.edges");
         for (int i = 0; i < posts.size(); i++) {
-            System.out.println("------------");
             Ason postObj = posts.get(i).getJsonObject("node");
             hashTagResponse.addRecentPost(returnTimeLinePost(postObj));
         }
         posts = data.getJsonArray("edge_hashtag_to_top_posts.edges");
         for (int i = 0; i < posts.size(); i++) {
-            System.out.println("||||||||");
             Ason postObj = posts.get(i).getJsonObject("node");
             hashTagResponse.addTopPost(returnTimeLinePost(postObj));
         }
@@ -790,7 +894,7 @@ public class Insta {
         return cookie;
     }
 
-    public User getYourSelf()throws Exception{
+    public User getYourSelf() throws Exception {
         return getYourSelf(false);
     }
 
@@ -798,7 +902,7 @@ public class Insta {
         if (username == null) {
             throw new Exception("you don't login yet. for this method you need to login first");
         }
-        if(refresh || user == null){
+        if (refresh || user == null) {
             return user = getUser(username);
         } else {
             return user;
@@ -846,7 +950,7 @@ public class Insta {
         post.setOwnerId(postObj.getString("owner.id"));
         post.setShortcode(postObj.getString("shortcode"));
         post.setTimestamp(postObj.getInt("taken_at_timestamp"));
-        post.setTypename(postObj.getString("__typename","Unknown"));
+        post.setTypename(postObj.getString("__typename", "Unknown"));
         if (post.isVideo()) {
             post.setVideoViewCount(postObj.getInt("video_view_count"));
         }

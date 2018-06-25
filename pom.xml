@@ -5,7 +5,7 @@
 
     <groupId>ir.sadeghpro</groupId>
     <artifactId>insta4j</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
 
     <name>instagram for java</name>
