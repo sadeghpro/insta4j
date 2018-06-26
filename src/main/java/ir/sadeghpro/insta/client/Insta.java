@@ -279,7 +279,7 @@ public class Insta {
         headers.put("Connection", "keep-alive");
         headers.put("Upgrade-Insecure-Requests", "1");
         headers.put("Host", "www.instagram.com");
-        Connection c = Jsoup.connect(S.URL).userAgent(userAgent).headers(headers).ignoreContentType(true);
+        Connection c = Jsoup.connect("https://www.instagram.com/accounts/login/").userAgent(userAgent).headers(headers).ignoreContentType(true);
         if (ip.length() > 0 && port != 0) {
             c.proxy(ip, port);
         }
@@ -312,10 +312,11 @@ public class Insta {
         headers.put("Accept", "*/*");
         headers.put("Accept-Encoding", "gzip, deflate, br");
         headers.put("Accept-Language", "en-US,en;q=0.9");
+        cookie.put("ig_cb","1");
 //        headers.put("Referrer", S.URL);
 //        headers.put("User-Agent", userAgent);
         c = Jsoup.connect(S.LOGIN_ADDRESS).userAgent(userAgent).cookies(cookie).ignoreContentType(true).data(post)
-                .referrer(S.URL).headers(headers).method(Connection.Method.POST);
+                .referrer("https://www.instagram.com/accounts/login/").headers(headers).method(Connection.Method.POST);
         if (ip.length() > 0 && port != 0) {
             c.proxy(ip, port);
         }
@@ -330,7 +331,7 @@ public class Insta {
         }
         Ason json = new Ason(login.body());
         if (json.getBool("authenticated", false)) {
-            Response redirect = Jsoup.connect(S.URL).userAgent(userAgent).cookies(cookie).referrer(S.URL + username + "/").execute();
+            Response redirect = Jsoup.connect(S.URL).userAgent(userAgent).cookies(cookie).referrer("https://www.instagram.com/accounts/login/").execute();
             for (Map.Entry<String, String> entry : redirect.cookies().entrySet()) {
                 if (entry.getValue().isEmpty() || entry.getValue().equals("\"\"")) {
                     cookie.remove(entry.getKey());
@@ -369,6 +370,7 @@ public class Insta {
         headers.put("Accept-Encoding", "gzip, deflate, br");
         headers.put("Accept-Language", "en-US,en;q=0.9");
         headers.put("Pragma", "no-cache");
+        cookie.put("ig_cb","1");
         Connection c = Jsoup.connect(S.URL + "challenge/reset/" + checkpointUrl).headers(headers).method(Connection.Method.POST)
                 .cookies(cookie).userAgent(userAgent).ignoreContentType(true);
         if (ip.length() > 0 && port != 0) {
