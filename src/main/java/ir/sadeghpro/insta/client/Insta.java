@@ -454,7 +454,17 @@ public class Insta {
                     cookie.put(entry.getKey(), entry.getValue());
                 }
             }
-            login = true;
+            Pattern p = Pattern.compile("_sharedData[\\s\\S]*?;</script>");
+            Matcher m = p.matcher(r.body());
+            if (m.find()) {
+                Ason object = new Ason(m.group(0).substring(14, m.group(0).lastIndexOf(";")));
+                csrf = object.get("config.csrf_token");
+                rhx_gis = object.getString("rhx_gis");
+                login = true;
+                login = isLogin();
+            } else {
+                System.out.println("NO MATCH");
+            }
         } else if(json.getString("status","").equals("fail")) {
             login = false;
         }
