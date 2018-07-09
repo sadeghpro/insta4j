@@ -771,6 +771,7 @@ public class Insta {
             suggestedUser.setRequested(userJson.getBool("requested_by_viewer"));
             suggestedUser.setUsername(userJson.getString("username"));
             sr.addSuggestedUser(suggestedUser);
+            sr.addUserId(suggestedUser.getInstaId());
         }
         return sr;
     }

@@ -31,7 +31,7 @@ public class SuggestedResponse {
         return userIds;
     }
 
-    public void setUserId(String userId) {
+    public void addUserId(String userId) {
         userIds.add(userId);
     }
 
